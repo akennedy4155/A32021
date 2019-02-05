@@ -261,6 +261,9 @@ def euclideanHeuristic(position, problem, info={}):
 # This portion is incomplete.  Time to write code!  #
 #####################################################
 
+def euclideanDistance(xy1, xy2):
+    return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+
 class CornersProblem(search.SearchProblem):
     """
     This search problem finds paths through all four corners of a layout.
@@ -275,29 +278,44 @@ class CornersProblem(search.SearchProblem):
         self.walls = startingGameState.getWalls()
         self.startingPosition = startingGameState.getPacmanPosition()
         top, right = self.walls.height-2, self.walls.width-2
-        self.corners = ((1,1), (1,top), (right, 1), (right, top))
+        self.corners = ((1, 1), (1, top), (right, top), (right, 1))
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print('Warning: no food in corner ' + str(corner))
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
+        self._visited, self._visitedlist = {}, []
+        # for testing, just go to the bottom right corner
+        self.goal = (1, 1)
+        self.visualize = True
+        self.currentGoal = 0
+        self.cornerDistances = {}
+        for corner in self.corners:
+            self.cornerDistances[corner] = euclideanDistance(corner, self.startingPosition)
+
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startingPosition
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        isGoal = self.currentGoal >= len(self.corners)
+        return isGoal
+
+    def isCheckpointState(self, state):
+        isCurrentGoal = state == self.corners[self.currentGoal]
+        if isCurrentGoal:
+            self.currentGoal += 1
+            # if self.currentGoal < len(self.corners):
+            #     print("new goal", self.corners[self.currentGoal])
+        return isCurrentGoal
 
     def getSuccessors(self, state):
         """
@@ -318,10 +336,18 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-
-            "*** YOUR CODE HERE ***"
+            x, y = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextState = (nextx, nexty)
+                cost = 1
+                successors.append( (nextState, action, cost) )
 
         self._expanded += 1 # DO NOT CHANGE
+        if state not in self._visited:
+            self._visited[state] = True
+            self._visitedlist.append(state)
         return successors
 
     def getCostOfActions(self, actions):

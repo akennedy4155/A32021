@@ -153,6 +153,9 @@ class Queue:
     def isEmpty(self):
         "Returns true if the queue is empty"
         return len(self.list) == 0
+    
+    def __str__(self):
+        return str(self.list)
 
 class PriorityQueue:
     """
@@ -191,6 +194,9 @@ class PriorityQueue:
                 break
         else:
             self.push(item, priority)
+
+    def __str__(self):
+        return str(self.heap)
 
 class PriorityQueueWithFunction(PriorityQueue):
     """
@@ -237,15 +243,21 @@ class TreeNode():
         else:
             return self.getPathToRootRecurse(this.parent) + [this.value[1]]
 
-class Tree():
-    def __init__(self, root = None):
-        self.root = root
+    def __str__ (self):
+        return "treenode:" + str(self.value)
 
-    def getRoot(self):
-        return self.root
+    def __repr__ (self):
+        return "treenode:" + str(self.value)
 
-    def setRoot(self, root):
-        self.root = root
+# class Tree():
+#     def __init__(self, root = None):
+#         self.root = root
+
+#     def getRoot(self):
+#         return self.root
+
+#     def setRoot(self, root):
+#         self.root = root
 
 """
   Data structures and functions useful for various course projects
