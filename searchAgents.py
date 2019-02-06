@@ -495,7 +495,23 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    foodHeur = 0
+    rowI = 0
+    foodLocations = set()
+    currentLoc = state[0]
+
+    for row in foodGrid:
+        colI = 0
+        for item in row:
+            if item:
+                foodHeur += 1
+                foodLocations.add( (rowI, colI) )
+            colI += 1
+        rowI += 1
+
+    return foodHeur
+
+import game
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -525,8 +541,9 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        path = search.breadthFirstSearch(problem)
+        
+        return path
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -559,10 +576,31 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         The state is Pacman's position. Fill this in with a goal test that will
         complete the problem definition.
         """
-        x,y = state
+        x, y = state
+        
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # find the goal state based on the current location
+        foodLocations = set()
+        rowI = 0
+        for row in self.food:
+            colI = 0
+            for item in row:
+                foodLoc = (rowI, colI)
+                if item:
+                    foodLocations.add(foodLoc)
+                colI += 1
+            rowI += 1
+
+        foodLocations = foodLocations
+        foodDistances = {}
+        for foodLoc in foodLocations:
+            foodDistances[foodLoc] = manhattanDistance(state, foodLoc)
+
+
+        goalState = min(foodDistances, key=foodDistances.get)
+        # "*** YOUR CODE HERE ***"
+        foundGoal = state == goalState
+        return foundGoal
 
 def mazeDistance(point1, point2, gameState):
     """
