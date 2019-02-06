@@ -72,7 +72,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearchNaiveStart(problem):
+def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -86,63 +86,8 @@ def depthFirstSearchNaiveStart(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    # initialize the search tree of the problem
-
-    g = Graph(map = problem)
-    # build a tree with root node of the start state formatted into a tuple
-    # like the one that the successor function returns
-    currentNode = util.TreeNode(successorState = (problem.getStartState(), None, 0))
-    tree = util.Tree(root = currentNode)
-    
-    fringe = util.Stack()
-    fringe.push(currentNode)
-    alreadyVisited = {fringe.peek().value[0]}
-     # loop
-    while(True):
-        # if no candidates for expansion return failure
-        if fringe.isEmpty():
-            return "No path found to goal state"
-        # choose leaf node for expansion according to the stack
-        expanded = fringe.pop()
-        # if node is the goal state return the solution
-        if problem.isGoalState(expanded.value[0]):
-            print(expanded.getPathToRoot())
-            return expanded.getPathToRoot()
-        else:
-            # expand node and add the resulting nodes to the search tree
-            print(f"expanding: {expanded.value}")
-            for succ in problem.getSuccessors(expanded.value[0]):
-                print(f"one successor: {succ}")
-                nextState = succ[0]
-                if nextState not in alreadyVisited:
-                    nextNode = util.TreeNode(successorState = succ, parent = expanded)
-                    expanded.addChild(nextNode)
-                    fringe.push(nextNode)
-                    alreadyVisited.add(nextState)
-                
-                # else if the node has been visited
-                # else:
-                #     # modify the parent to be the node that you're currently expanding
-                #     childI = None
-                #     try:
-                #         childI = expanded.children.index(nextNode)
-                #         expanded.children[childI].parent = nextNode
-                #     except:
-                #         print(f"exception: {nextNode.value[0]}")
-
-# def depthFirstSearch(tree):
-#     if tree.parent is None:
-#         return []
-#     else:
-#         print()
-
-# def depthFirstSearch(problem):
-#     g = Graph(problem)
-#     return g.dfs()
-
-def depthFirstSearch(problem):
     # make the root        
-    root = util.TreeNode((problem.getStartState(), None, 0))
+    root = util.TreeNode((problem.getStartState(), None, 0), problem.getStartState())
 
     # start fringe with root node
     fringe = util.Stack()
@@ -155,7 +100,7 @@ def depthFirstSearch(problem):
 
         # get the current node and the current pos
         currentNode = fringe.pop()
-        currentPos = currentNode.value[0]
+        currentPos = currentNode.state
 
         # check if the node has already been expanded
         if currentPos not in visited:
@@ -170,88 +115,8 @@ def depthFirstSearch(problem):
             else:
                 # expand the node and add it to the tree
                 for connex in problem.getSuccessors(currentPos):
-                    newNode = util.TreeNode(connex, parent = currentNode)
+                    newNode = util.TreeNode(connex, connex[0], parent = currentNode)
                     fringe.push(newNode)
-
-class Graph():
-    def __init__(self, map):
-        self.graph = map.successors
-        self.start = map.getStartState()
-        self.problem = map
-        # build the graph from the map given
-        # if map is not None:
-        #     print(map.successors)
-        #     # print(map.getSuccessors(map.getStartState()))
-        #     self.buildFromMap(map)
-
-    def addNode(self, value):
-        if value not in self.graph.keys():
-            self.graph[value] = []
-        else:
-            print("this node already exists in the graph. can't add.")
-
-    def buildFromMap(self, map):
-        for x in range(map.walls.width):
-            for y in range(map.walls.height):
-                if not map.walls[x][y]:
-                    self.addNode((x, y))
-        
-        for node in self.graph.keys():
-            self.graph[node] = map.getSuccessors(node)
-        
-        # print(self.graph)
-        # print(map.walls)
-
-    # def dfsStart(self):
-    #     root = util.TreeNode((self.start, None, 0))
-    #     self.dfsSearchGoal(node = root, visited = [])
-
-    # def dfsSearchGoal(self, node, visited):
-    #     currentPos = node.value[0]
-    #     visited.append(currentPos)
-    #     connex = self.graph[currentPos]
-    #     # print("search 179", node, connex, visited)
-    #     # input("press enter to continue...")
-    #     if currentPos == self.goal:
-    #         return node.getPath()
-
-    #     for next in connex:
-    #         nextPos = next[0]
-    #         if nextPos not in visited:
-    #             return self.dfsSearchGoal(util.TreeNode(next, node), visited)
-
-    def dfs(self):
-        # make the root        
-        root = util.TreeNode((self.start, None, 0))
-        # make an empty fringe
-        fringe = util.Stack()
-        fringe.push(root)
-        visited = []
-
-        while True:
-            # print(fringe)
-            # input("press enter to continue...")
-            if fringe.isEmpty():
-                return "failure"
-            currentNode = fringe.pop()
-            currentPos = currentNode.value[0]
-            visited.append(currentPos)
-            if self.problem.isGoalState(currentPos):
-                return currentNode.getPathToRoot()
-            else:
-                # expand the node
-                for connex in self.graph[currentPos]:
-                    if connex[0] not in visited:
-                        newNode = util.TreeNode(connex, parent = currentNode)
-                        fringe.push(newNode)
-
-        
-            
-        
-
-        
-
-    
 
 # https://stackoverflow.com/questions/1649027/how-do-i-print-out-a-tree-structure
 # translated from c# to python
@@ -265,16 +130,14 @@ def printTree(tree, indent, last):
     for i in range(len(tree.children)):
         printTree(tree.children[i], indent, i == len(tree.children) - 1)
 
-import searchAgents
 def breadthFirstSearch(problem):
     # make the root        
-    root = util.TreeNode((problem.getStartState(), None, 0))
+    root = util.TreeNode((problem.getStartState(), None, 0), problem.getStartState())
 
     # start fringe with root node
     fringe = util.Queue()
     fringe.push(root)
     visited = set()
-    path = []
 
     while True:
         if fringe.isEmpty():
@@ -282,46 +145,27 @@ def breadthFirstSearch(problem):
 
         # get the current node and the current pos
         currentNode = fringe.pop()
-        currentPos = currentNode.value[0]
+        currentState = currentNode.state
 
         # check if the node has already been expanded
-        if currentPos not in visited:
+        if currentState not in visited:
             # add that node to visited
-            visited.add(currentPos)
+            visited.add(currentState)
 
-            if isinstance(problem, searchAgents.CornersProblem):
-                isCheckpoint = problem.isCheckpointState(currentPos)
-                isGoal = problem.isGoalState(currentPos)
-                if isCheckpoint and not isGoal:
-                    root = util.TreeNode((currentPos, None, 0))
-                    # start fringe with root node
-                    fringe = util.Queue()
-                    fringe.push(root)
-                    visited = set()
-                    path += currentNode.getPathToRoot()
-                elif isCheckpoint and isGoal:
-                    return path + currentNode.getPathToRoot()
-                # else keep expanding according to the fringe
-                else:
-                    # expand the node and add it to the tree
-                    for connex in problem.getSuccessors(currentPos):
-                        newNode = util.TreeNode(connex, parent = currentNode)
-                        fringe.push(newNode)
+            # if the problem is a goal state, return the path that it found to get there
+            if problem.isGoalState(currentState):
+                return currentNode.getPathToRoot()
+
+            # else keep expanding according to the fringe
             else:
-                # if the problem is a goal state, return the path that it found to get there
-                if problem.isGoalState(currentPos):
-                    return currentNode.getPathToRoot()
-
-                # else keep expanding according to the fringe
-                else:
-                    # expand the node and add it to the tree
-                    for connex in problem.getSuccessors(currentPos):
-                        newNode = util.TreeNode(connex, parent = currentNode)
-                        fringe.push(newNode)
+                # expand the node and add it to the tree
+                for connex in problem.getSuccessors(currentState):
+                    newNode = util.TreeNode(connex, connex[0], parent = currentNode)
+                    fringe.push(newNode)
 
 def uniformCostSearch(problem):
     # make the root        
-    root = util.TreeNode((problem.getStartState(), None, 0))
+    root = util.TreeNode((problem.getStartState(), None, 0), problem.getStartState())
 
     # start fringe with root node
     fringe = util.PriorityQueue()
@@ -334,7 +178,7 @@ def uniformCostSearch(problem):
 
         # get the current node and the current pos
         currentNode = fringe.pop()
-        currentPos = currentNode.value[0]
+        currentPos = currentNode.state
 
         # check if the node has already been expanded
         if currentPos not in visited:
@@ -349,8 +193,8 @@ def uniformCostSearch(problem):
             else:
                 # expand the node and add it to the tree
                 for connex in problem.getSuccessors(currentPos):
-                    newNode = util.TreeNode(connex, parent = currentNode)
-                    fringe.update(newNode, problem.getCostOfActions(newNode.getPathToRoot()))
+                    newNode = util.TreeNode(connex, connex[0], parent = currentNode)
+                    fringe.push(newNode, problem.getCostOfActions(newNode.getPathToRoot()))
 
 def nullHeuristic(state, problem=None):
     """
@@ -361,7 +205,7 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
         # make the root        
-    root = util.TreeNode((problem.getStartState(), None, 0))
+    root = util.TreeNode((problem.getStartState(), None, 0), problem.getStartState())
 
     # start fringe with root node
     fringe = util.PriorityQueue()
@@ -388,7 +232,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             else:
                 # expand the node and add it to the tree
                 for connex in problem.getSuccessors(currentPos):
-                    newNode = util.TreeNode(connex, parent = currentNode)
+                    newNode = util.TreeNode(connex, connex[0], parent = currentNode)
                     aStarVal = problem.getCostOfActions(newNode.getPathToRoot()) + heuristic(newNode.value[0], problem)
                     fringe.update(newNode, aStarVal)
 

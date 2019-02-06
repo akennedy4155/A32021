@@ -220,9 +220,10 @@ def manhattanDistance( xy1, xy2 ):
     return abs( xy1[0] - xy2[0] ) + abs( xy1[1] - xy2[1] )
 
 class TreeNode():
-    def __init__(self, successorState, parent = None):
+    def __init__(self, startStateWithDirection, startState, parent = None):
         self.parent = parent
-        self.value = successorState
+        self.value = startStateWithDirection
+        self.state = startState
         self.children = []
     
     def setParent(self, parent):
